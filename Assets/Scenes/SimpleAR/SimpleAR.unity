@@ -3856,7 +3856,7 @@ MonoBehaviour:
   timeText: {fileID: 760560207}
   correct: {fileID: 1941510811}
   startButton: {fileID: 45565938}
-  targetIcon: {fileID: 0}
+  targetIcon: {fileID: 435578138}
 --- !u!1001 &1379324538
 PrefabInstance:
   m_ObjectHideFlags: 0
