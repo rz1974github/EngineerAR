@@ -82,7 +82,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             int nSec = (int)timer % 60;
             int nMin = (int)(timer - (float)nSec) / 60;
 
-            timeText.text = nMin.ToString("00") + ":" + nSec.ToString("00");
+            timeText.text = nMin.ToString("00") + ":" + nSec.ToString("00"); //test
         }
 
         // Update is called once per frame
