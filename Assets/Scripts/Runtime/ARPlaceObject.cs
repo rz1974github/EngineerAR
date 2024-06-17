@@ -13,6 +13,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
         GameObject m_PrefabToPlace;
 
         [SerializeField]
+        [Tooltip("The prefab scale.")]
+        float m_PrefabScale=1.0f;
+
+        [SerializeField]
         [Tooltip("The Scriptable Object Asset that contains the ARRaycastHit event.")]
         ARRaycastHitEventAsset m_RaycastHitEvent;
 
@@ -65,6 +69,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             var offset = forward * k_PrefabHalfSize;
             m_SpawnedObject.transform.position = hitPose.pose.position + offset;
             m_SpawnedObject.transform.parent = hitPose.trackable.transform.parent;
+            m_SpawnedObject.transform.localScale = new Vector3(m_PrefabScale, m_PrefabScale, m_PrefabScale);
         }
     }
 }
