@@ -20,6 +20,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public GameObject correct;
         public GameObject startButton;
         public GameObject targetIcon;
+        public GameObject targetHint;
+        public GameObject resetButton;
 
         int turnIndex = 0;
 
@@ -30,24 +32,41 @@ namespace UnityEngine.XR.ARFoundation.Samples
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
+            resetToReady();
+        }
+
+        public void resetToReady()
+        {
             mGameState = GameState.GS_None;
-            targetIcon.active = false;
+            targetIcon.SetActive(false);
+            targetHint.SetActive(false);
+            resetButton.SetActive(false);
+            startButton.SetActive(true);
+
+            timer = 360.0f;
             refreshTimeText();
 
             foreach (GameObject gmo in mainArray)
             {
                 gmo.SetActive(false);
             }
+
+            foreach (GameObject gmo in wireArray)
+            {
+                gmo.SetActive(true);
+            }
         }
 
         public void startPressed()
         {
-            startButton.active = false;
+            startButton.SetActive(false);
 
             timer = 360.0f;
             mGameState = GameState.GS_Game;
 
-            targetIcon.active = true;
+            targetIcon.SetActive(true);
+            targetHint.SetActive(true);
+            resetButton.SetActive(true);
         }
 
         public void inTurnActive()
