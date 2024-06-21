@@ -7,7 +7,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
     enum GameState
     {
         GS_None,
-        GS_Game
+        GS_Game,
+        GS_GameSucceed,
+        GS_GameFailed
     }
 
     public class rzMain : MonoBehaviour
@@ -22,6 +24,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public GameObject targetIcon;
         public GameObject targetHint;
         public GameObject resetButton;
+        public GameObject clockSet;
 
         int turnIndex = 0;
 
@@ -38,9 +41,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public void resetToReady()
         {
             mGameState = GameState.GS_None;
+            //hide
             targetIcon.SetActive(false);
             targetHint.SetActive(false);
             resetButton.SetActive(false);
+            clockSet.SetActive(false);
+
             startButton.SetActive(true);
 
             timer = 360.0f;
@@ -67,6 +73,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             targetIcon.SetActive(true);
             targetHint.SetActive(true);
             resetButton.SetActive(true);
+            clockSet.SetActive(true);
         }
 
         public void inTurnActive()
