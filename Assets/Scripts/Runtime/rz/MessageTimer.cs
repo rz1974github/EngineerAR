@@ -4,21 +4,36 @@ namespace UnityEngine.XR.ARFoundation.Samples
 {
     public class MessageTimer : MonoBehaviour
     {
+        public delegate void WhenTimeUp();
+        public event WhenTimeUp onTimeUp;
+
         float showtime = 0;
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
-            gameObject.GetComponent<Renderer>().enabled = false;
+            //gameObject.GetComponent<Renderer>().enabled = false;
+            gameObject.SetActive(false);
         }
 
-        public void ShowTime()
+        public void clearAllTimeUpHandler()
         {
-            showtime = 1.0f;
+            Debug.Log("clearAllTimeUpHandler");
+            /*
+            foreach (System.Delegate d in onTimeUp.GetInvocationList())
+            {
+                onTimeUp -= (WhenTimeUp)d;
+            }
+            */
+            onTimeUp = null;
+
+            Debug.Log("clearAllTimeUpHandler Done");
         }
 
-        public void Finish()
+        public void ShowTime(float duration)
         {
-            gameObject.GetComponent<TMPro.TMP_Text>().text = "FINISHED!";
+            showtime = duration;
+            Debug.Log("ShowTime:" + duration);
+            gameObject.SetActive(true);
         }
 
         // Update is called once per frame
@@ -27,11 +42,13 @@ namespace UnityEngine.XR.ARFoundation.Samples
             if(showtime>0)
             {
                 showtime -= Time.deltaTime;
-                gameObject.GetComponent<Renderer>().enabled = true;
+                //gameObject.GetComponent<Renderer>().enabled = true;
             }
             else
             {
-                gameObject.GetComponent<Renderer>().enabled = false;
+                //gameObject.GetComponent<Renderer>().enabled = false;
+                gameObject.SetActive(false);
+                if (onTimeUp != null) onTimeUp();
             }
         }
     }

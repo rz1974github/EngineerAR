@@ -17,11 +17,16 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public GameObject[] mainArray;
         public GameObject[] wireArray;
 
+        float[] rankArray = new float[4];
+        public TMPro.TMP_Text[] rankTextArray;
+
         //public GameObject theModel;
         public TMPro.TMP_Text timeText;
-        public GameObject correct;
-        public GameObject startButton;
+        public MessageTimer correctBox;
+        public MessageTimer EndMessageBox;
+        public TMPro.TMP_Text EndMessage;
         public GameObject targetIcon;
+        public GameObject targetUI;
         public GameObject targetHint;
         public GameObject resetButton;
         public GameObject clockSet;
@@ -39,8 +44,16 @@ namespace UnityEngine.XR.ARFoundation.Samples
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
+            rankArray[0] = 599.0f;
+            rankArray[1] = 599.0f;
+            rankArray[2] = 599.0f;
+            rankArray[3] = 599.0f;
+
             rzPanelScript.windowClosedEvent += onPanelClosed;
-            resetToReady();
+            resetToReady(GameState.GS_None);
+            resetModels();
+
+            Debug.Log("Main Started");
         }
 
         void onPanelClosed()
@@ -53,15 +66,18 @@ namespace UnityEngine.XR.ARFoundation.Samples
             rankButton.SetActive(true);
         }
 
-        public void resetToReady()
+        void resetToReady(GameState toState)
         {
-            mGameState = GameState.GS_None;
+            mGameState = toState;
+            turnIndex = 0;
             //hide
-            targetIcon.SetActive(false);
+            //targetIcon.SetActive(false);
+            targetUI.SetActive(false);
             targetHint.SetActive(false);
             clockSet.SetActive(false);
             menuPanel.SetActive(false);
             rankPanel.SetActive(false);
+            correctBox.gameObject.SetActive(false);
 
             //show
             resetButton.SetActive(true);
@@ -69,8 +85,11 @@ namespace UnityEngine.XR.ARFoundation.Samples
             rankButton.SetActive(true);
 
             timer = 360.0f;
-            refreshTimeText();
+            timeText.text = floatTimeToString(timer);
+        }
 
+        void resetModels()
+        {
             foreach (GameObject gmo in mainArray)
             {
                 gmo.SetActive(false);
@@ -90,7 +109,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
             else
             {
-                resetToReady();
+                resetToReady(GameState.GS_None);
+                resetModels();
             }
         }
 
@@ -101,10 +121,11 @@ namespace UnityEngine.XR.ARFoundation.Samples
             menuPanel.SetActive(false);
             rankPanel.SetActive(false);
 
-            timer = 360.0f;
+            timer = 40.0f;
             mGameState = GameState.GS_Game;
 
-            targetIcon.SetActive(true);
+            //targetIcon.SetActive(true);
+            targetUI.SetActive(true);
             targetHint.SetActive(true);
             resetButton.SetActive(true);
             clockSet.SetActive(true);
@@ -132,6 +153,39 @@ namespace UnityEngine.XR.ARFoundation.Samples
             rankButton.SetActive(false);
         }
 
+        void checkToWriteRank(float time)
+        {
+            int nFound = 999;
+            for(int i=0;i<4;i++)
+            {
+                if(rankArray[i] > time)
+                {
+                    nFound = i;
+                    break;
+                }
+            }
+
+            if(nFound!=999)
+            {
+                for(int j=nFound;j<4;j++)
+                {
+                    int k = j + 1;
+                    if(k<4)
+                    {
+                        rankArray[k] = rankArray[j];
+                    }
+                }
+                rankArray[nFound] = timer;
+            }
+
+            //reflect to Text
+            for(int n=0;n<4;n++)
+            {
+                rankTextArray[n].text = floatTimeToString(rankArray[n]);
+                Debug.Log("rank[" + n + "]=" + rankArray[n]);
+            }
+        }    
+
         public void inTurnActive()
         {
             activateIndex(turnIndex);
@@ -139,11 +193,19 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             if(turnIndex==8)
             {
-                mGameState = GameState.GS_None;
+                resetToReady(GameState.GS_GameSucceed);
+
+                EndMessageBox.clearAllTimeUpHandler();
+                EndMessageBox.onTimeUp += whenSucceedFinished;
+                EndMessage.text = "成功! 時間 " + timeText.text;
+                EndMessageBox.ShowTime(3.0f);
+                checkToWriteRank(timer);
+
+                Debug.Log("Game Succeed");
             }
             else
             {
-                correct.GetComponent<MessageTimer>().ShowTime();
+                correctBox.ShowTime( 0.75f);
             }
         }
 
@@ -156,15 +218,24 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
         }
 
-        void refreshTimeText()
+        public void whenSucceedFinished()
+        {
+            mGameState = GameState.GS_None;
+        }
+
+        public void whenFailedFinished()
+        {
+            mGameState = GameState.GS_None;
+            resetModels();
+        }
+
+        String floatTimeToString(float value)
         {
 
-            timer = Mathf.Max(0, timer);
+            int nSec = (int)value % 60;
+            int nMin = (int)(value - (float)nSec) / 60;
 
-            int nSec = (int)timer % 60;
-            int nMin = (int)(timer - (float)nSec) / 60;
-
-            timeText.text = nMin.ToString("00") + ":" + nSec.ToString("00"); //test
+            return nMin.ToString("00") + ":" + nSec.ToString("00");
         }
 
         // Update is called once per frame
@@ -173,7 +244,20 @@ namespace UnityEngine.XR.ARFoundation.Samples
             if(mGameState == GameState.GS_Game)
             {
                 timer -= Time.deltaTime;
-                refreshTimeText();
+                timer = Mathf.Max(0, timer);
+                timeText.text = floatTimeToString(timer);
+
+                if (timer<=0)
+                {
+                    resetToReady(GameState.GS_GameFailed);
+
+                    EndMessageBox.clearAllTimeUpHandler();
+                    EndMessageBox.onTimeUp += whenFailedFinished;
+                    EndMessage.text = "時間到 任務失敗";
+                    EndMessageBox.ShowTime(3.0f);
+
+                    Debug.Log("Game Failed!");
+                }
             }
         }
     }
