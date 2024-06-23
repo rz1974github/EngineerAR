@@ -38,7 +38,13 @@ namespace UnityEngine.XR.ARFoundation.Samples
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
+            rzPanelScript.windowClosedEvent += onPanelClosed;
             resetToReady();
+        }
+
+        void onPanelClosed()
+        {
+            moreButton.SetActive(true);
         }
 
         public void resetToReady()
@@ -85,6 +91,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         {
             moreButton.SetActive(false);
             rankButton.SetActive(false);
+            menuPanel.SetActive(false);
 
             timer = 360.0f;
             mGameState = GameState.GS_Game;
@@ -98,6 +105,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public void showMenuPanel()
         {
             menuPanel.SetActive(true);
+
+            moreButton.SetActive(false);
         }
 
         public void inTurnActive()
