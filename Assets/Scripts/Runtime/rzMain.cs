@@ -28,6 +28,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public GameObject moreButton;
         public GameObject rankButton;
         public GameObject menuPanel;
+        public GameObject rankPanel;
 
         int turnIndex = 0;
 
@@ -47,6 +48,11 @@ namespace UnityEngine.XR.ARFoundation.Samples
             moreButton.SetActive(true);
         }
 
+        public void onRankClosed()
+        {
+            rankButton.SetActive(true);
+        }
+
         public void resetToReady()
         {
             mGameState = GameState.GS_None;
@@ -55,6 +61,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             targetHint.SetActive(false);
             clockSet.SetActive(false);
             menuPanel.SetActive(false);
+            rankPanel.SetActive(false);
 
             //show
             resetButton.SetActive(true);
@@ -92,6 +99,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             moreButton.SetActive(false);
             rankButton.SetActive(false);
             menuPanel.SetActive(false);
+            rankPanel.SetActive(false);
 
             timer = 360.0f;
             mGameState = GameState.GS_Game;
@@ -105,8 +113,23 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public void showMenuPanel()
         {
             menuPanel.SetActive(true);
+            rankButton.SetActive(true);
+
+            rankPanel.SetActive(false);
 
             moreButton.SetActive(false);
+        }
+
+        public void showRankPanel()
+        {
+            rankPanel.SetActive(true);
+            moreButton.SetActive(true);
+
+            rzPanelScript menuScript = menuPanel.GetComponent<rzPanelScript>();
+
+            menuScript.closeAllPages();
+
+            rankButton.SetActive(false);
         }
 
         public void inTurnActive()

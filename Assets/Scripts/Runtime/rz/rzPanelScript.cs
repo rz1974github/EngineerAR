@@ -32,6 +32,15 @@ namespace UnityEngine.XR.ARFoundation.Samples
             this.gameObject.SetActive(true);
         }
 
+        public void closeAllPages()
+        {
+            page0.SetActive(false);
+            page1.SetActive(false);
+            page2.SetActive(false);
+
+            this.gameObject.SetActive(false);
+        }
+
         public void openPageIndex(GameObject thePage)
         {
             thePage.SetActive(true);
