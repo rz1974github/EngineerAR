@@ -34,10 +34,14 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public GameObject rankButton;
         public GameObject menuPanel;
         public GameObject rankPanel;
+        public GameObject partsSelection;
+        public Camera MainCamera;
 
         int turnIndex = 0;
 
-        float timer = 360.0f;
+        public float total_time = 360.0f;
+
+        float timer;
 
         GameState mGameState;
 
@@ -56,14 +60,73 @@ namespace UnityEngine.XR.ARFoundation.Samples
             Debug.Log("Main Started");
         }
 
+        // Update is called once per frame
+        void Update()
+        {
+            if (mGameState != GameState.GS_Game) return;
+
+            timer -= Time.deltaTime;
+            timer = Mathf.Max(0, timer);
+            timeText.text = floatTimeToString(timer);
+
+            if (timer <= 0)
+            {
+                Debug.Log("Game Failed!");
+
+                resetToReady(GameState.GS_GameFailed);
+
+                EndMessageBox.clearAllTimeUpHandler();
+                EndMessageBox.onTimeUp += whenFailedFinished;
+                EndMessage.text = "Time's Up!";
+                EndMessageBox.ShowTime(3.0f);
+            }
+        }
+
+        void activateIndex(int index)
+        {
+            if (index < mainArray.Length)
+            {
+                mainArray[index].SetActive(true);
+                wireArray[index].SetActive(false);
+            }
+        }
+
+        void checkToWriteRank(float time)
+        {
+            int nFound = 999;
+            for (int i = 0; i < 4; i++)
+            {
+                if (rankArray[i] > time)
+                {
+                    nFound = i;
+                    break;
+                }
+            }
+
+            if (nFound != 999)
+            {
+                for (int j = 3; j >= nFound; j--)
+                {
+                    int k = j + 1;
+                    if (k < 4)
+                    {
+                        rankArray[k] = rankArray[j];
+                    }
+                }
+                rankArray[nFound] = timer;
+
+                //reflect to Text
+                for (int n = 0; n < 4; n++)
+                {
+                    rankTextArray[n].text = floatTimeToString(rankArray[n]);
+                    Debug.Log("rank[" + n + "]=" + rankArray[n]);
+                }
+            }
+        }
+
         void onPanelClosed()
         {
             moreButton.SetActive(true);
-        }
-
-        public void onRankClosed()
-        {
-            rankButton.SetActive(true);
         }
 
         void resetToReady(GameState toState)
@@ -78,13 +141,13 @@ namespace UnityEngine.XR.ARFoundation.Samples
             menuPanel.SetActive(false);
             rankPanel.SetActive(false);
             correctBox.gameObject.SetActive(false);
+            partsSelection.SetActive(false);
 
             //show
             resetButton.SetActive(true);
             moreButton.SetActive(true);
             rankButton.SetActive(true);
 
-            timer = 360.0f;
             timeText.text = floatTimeToString(timer);
         }
 
@@ -101,10 +164,128 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
         }
 
+        String floatTimeToString(float value)
+        {
+
+            int nSec = (int)value % 60;
+            int nMin = (int)(value - (float)nSec) / 60;
+
+            return nMin.ToString("00") + ":" + nSec.ToString("00");
+        }
+
+        partType checkType(GameObject gameo)
+        {
+            Selectable sel = gameo.GetComponent<Selectable>();
+
+            if (sel != null)
+            {
+                return sel.myType;
+            }
+
+            return partType.PT_None;
+        }
+
+        partType checkFamilyPartType(GameObject gameo)
+        {
+            partType finalType = checkType(gameo);
+
+            if (finalType != partType.PT_None) return finalType;
+
+            GameObject father = gameObject.transform.parent.gameObject;
+            if(father!=null)
+            {
+                finalType = checkType(father);
+            }
+            if (finalType != partType.PT_None) return finalType;
+
+            GameObject grandFather = father.transform.parent.gameObject;
+            if (grandFather != null)
+            {
+                finalType = checkType(grandFather);
+            }
+            if (finalType != partType.PT_None) return finalType;
+
+            return partType.PT_None;
+        }
+
+        public void rayCastTest()
+        {
+            if (mGameState != GameState.GS_Game) return;
+
+            Vector3 startPos = MainCamera.transform.position;
+
+            Vector3 direction = MainCamera.transform.forward;
+
+            RaycastHit hitInfo;
+
+            bool Touched = false;
+            if(Physics.Raycast(startPos, direction, out hitInfo, 100.0f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.UseGlobal))
+            {
+                if(hitInfo.collider!=null)
+                {
+                    Debug.Log("Hit collider = " + hitInfo.collider.ToString());
+
+                    GameObject hitObject = hitInfo.collider.gameObject;
+                    if (hitObject != null)
+                    {
+                        Debug.Log("Hit Object = " + hitObject.ToString());
+
+                        partType pt = checkFamilyPartType(hitObject);
+                        if (pt != partType.PT_None)
+                        {
+                            EndMessageBox.clearAllTimeUpHandler();
+                            EndMessage.text = "Part type=" + pt.ToString();
+                            EndMessageBox.ShowTime(2.0f);
+                            Touched = true;
+                        }
+                    }
+                }
+            }
+            if(!Touched)
+            {
+                EndMessageBox.clearAllTimeUpHandler();
+                EndMessage.text = "No Touch";
+                EndMessageBox.ShowTime(2.0f);
+                Touched = true;
+            }
+        }
+
+        public void inTurnActive()
+        {
+            if (mGameState != GameState.GS_Game ) return;
+
+            activateIndex(turnIndex);
+            turnIndex = (turnIndex + 1);
+
+            if (turnIndex == 8)
+            {
+                resetToReady(GameState.GS_GameSucceed);
+
+                EndMessageBox.clearAllTimeUpHandler();
+                EndMessageBox.onTimeUp += whenSucceedFinished;
+                EndMessage.text = "Good Job! Time " + timeText.text;
+                EndMessageBox.ShowTime(3.0f);
+                checkToWriteRank(timer);
+
+                Debug.Log("Game Succeed");
+            }
+            else
+            {
+                correctBox.ShowTime(0.75f);
+            }
+        }
+
+        public void onRankClosed()
+        {
+            rankButton.SetActive(true);
+        }
+
         public void resetSwitch()
         {
             if(mGameState == GameState.GS_None)
             {
+                resetToReady(GameState.GS_None);
+                resetModels();
                 startPressed();
             }
             else
@@ -112,23 +293,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 resetToReady(GameState.GS_None);
                 resetModels();
             }
-        }
-
-        public void startPressed()
-        {
-            moreButton.SetActive(false);
-            rankButton.SetActive(false);
-            menuPanel.SetActive(false);
-            rankPanel.SetActive(false);
-
-            timer = 40.0f;
-            mGameState = GameState.GS_Game;
-
-            //targetIcon.SetActive(true);
-            targetUI.SetActive(true);
-            targetHint.SetActive(true);
-            resetButton.SetActive(true);
-            clockSet.SetActive(true);
         }
 
         public void showMenuPanel()
@@ -153,112 +317,37 @@ namespace UnityEngine.XR.ARFoundation.Samples
             rankButton.SetActive(false);
         }
 
-        void checkToWriteRank(float time)
+        public void startPressed()
         {
-            int nFound = 999;
-            for(int i=0;i<4;i++)
-            {
-                if(rankArray[i] > time)
-                {
-                    nFound = i;
-                    break;
-                }
-            }
+            moreButton.SetActive(false);
+            rankButton.SetActive(false);
+            menuPanel.SetActive(false);
+            rankPanel.SetActive(false);
 
-            if(nFound!=999)
-            {
-                for(int j=nFound;j<4;j++)
-                {
-                    int k = j + 1;
-                    if(k<4)
-                    {
-                        rankArray[k] = rankArray[j];
-                    }
-                }
-                rankArray[nFound] = timer;
-            }
+            timer = total_time;
+            mGameState = GameState.GS_Game;
 
-            //reflect to Text
-            for(int n=0;n<4;n++)
-            {
-                rankTextArray[n].text = floatTimeToString(rankArray[n]);
-                Debug.Log("rank[" + n + "]=" + rankArray[n]);
-            }
-        }    
-
-        public void inTurnActive()
-        {
-            activateIndex(turnIndex);
-            turnIndex = (turnIndex + 1);
-
-            if(turnIndex==8)
-            {
-                resetToReady(GameState.GS_GameSucceed);
-
-                EndMessageBox.clearAllTimeUpHandler();
-                EndMessageBox.onTimeUp += whenSucceedFinished;
-                EndMessage.text = "成功! 時間 " + timeText.text;
-                EndMessageBox.ShowTime(3.0f);
-                checkToWriteRank(timer);
-
-                Debug.Log("Game Succeed");
-            }
-            else
-            {
-                correctBox.ShowTime( 0.75f);
-            }
-        }
-
-        public void activateIndex(int index)
-        {
-            if(index < mainArray.Length)
-            {
-                mainArray[index].SetActive(true);
-                wireArray[index].SetActive(false);
-            }
+            //targetIcon.SetActive(true);
+            targetUI.SetActive(true);
+            targetHint.SetActive(true);
+            resetButton.SetActive(true);
+            clockSet.SetActive(true);
+            partsSelection.SetActive(true);
+            //Selectable.bRotating = true;
         }
 
         public void whenSucceedFinished()
         {
             mGameState = GameState.GS_None;
+
+            Debug.Log("whenSucceedFinished done");
         }
 
         public void whenFailedFinished()
         {
             mGameState = GameState.GS_None;
             resetModels();
-        }
-
-        String floatTimeToString(float value)
-        {
-
-            int nSec = (int)value % 60;
-            int nMin = (int)(value - (float)nSec) / 60;
-
-            return nMin.ToString("00") + ":" + nSec.ToString("00");
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            if(mGameState == GameState.GS_Game)
-            {
-                timer -= Time.deltaTime;
-                timer = Mathf.Max(0, timer);
-                timeText.text = floatTimeToString(timer);
-
-                if (timer<=0)
-                {
-                    resetToReady(GameState.GS_GameFailed);
-
-                    EndMessageBox.clearAllTimeUpHandler();
-                    EndMessageBox.onTimeUp += whenFailedFinished;
-                    EndMessage.text = "時間到 任務失敗";
-                    EndMessageBox.ShowTime(3.0f);
-
-                    Debug.Log("Game Failed!");
-                }
-            }
+            Debug.Log("whenFailedFinished done");
         }
     }
 }
