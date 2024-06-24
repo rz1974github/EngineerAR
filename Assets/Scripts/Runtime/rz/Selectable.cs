@@ -4,16 +4,17 @@ namespace UnityEngine.XR.ARFoundation.Samples
 {
     public enum partType
     {
-        PT_Fake0=0,
-        PT_Pillow1 = 1,
-        PT_DarkGray2 = 2,
-        PT_Purple3 = 3,
-        PT_TRLight4 = 4,
-        PT_Pillars5 = 5,
-        PT_Floor6 = 6,
-        PT_Front_Panel7 = 7,
-        PT_Front_Pillars8 = 8,
-        PT_None = 9,
+
+        PT_Pillow1 = 0,
+        PT_DarkGray2 = 1,
+        PT_Purple3 = 2,
+        PT_TRLight4 = 3,
+        PT_Pillars5 = 4,
+        PT_Floor6 = 5,
+        PT_Front_Panel7 = 6,
+        PT_Front_Pillars8 = 7,
+        PT_Fake0 = 8,
+        PT_None = 9
     }
 
     public class Selectable : MonoBehaviour

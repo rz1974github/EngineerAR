@@ -748,7 +748,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 6
+  myType: 5
   PosDiameter: 2.8
   angle: -20
   xPlace: -0.35
@@ -1069,7 +1069,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 0
+  myType: 8
   PosDiameter: 2.8
   angle: 0
   xPlace: -0.35
@@ -1946,7 +1946,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 7
+  myType: 6
   PosDiameter: 3.8
   angle: 220
   xPlace: -0.35
@@ -2394,7 +2394,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 0
+  myType: 8
   PosDiameter: 2.7
   angle: 200
   xPlace: -0.4
@@ -3923,7 +3923,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 8
+  myType: 7
   PosDiameter: 2.8
   angle: 30
   xPlace: -0.4
@@ -4783,7 +4783,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 1
+  myType: 0
   PosDiameter: 2.7
   angle: 180
   xPlace: -0.35
@@ -5141,7 +5141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 0
+  myType: 3
   PosDiameter: 3.8
   angle: 180
   xPlace: -0.35
@@ -5958,7 +5958,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 2
+  myType: 1
   PosDiameter: 3.8
   angle: 0
   xPlace: -0.35
@@ -5981,7 +5981,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 4
+  myType: 3
   PosDiameter: 3.8
   angle: -20
   xPlace: -0.35
@@ -6347,7 +6347,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 0
+  myType: 8
   PosDiameter: 2.8
   angle: -40
   xPlace: -0.35
@@ -6795,7 +6795,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 5
+  myType: 4
   PosDiameter: 3.8
   angle: -40
   xPlace: -0.35
@@ -8369,7 +8369,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 0
+  myType: 8
   PosDiameter: 3.8
   angle: 195
   xPlace: -0.35
@@ -10137,8 +10137,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Hello
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3e262267a8bff4052949f3cbc5f2820f, type: 2}
-  m_sharedMaterial: {fileID: 3374262808974120758, guid: 3e262267a8bff4052949f3cbc5f2820f,
+  m_fontAsset: {fileID: 11400000, guid: f6391423df6bc5749819e330293f4f76, type: 2}
+  m_sharedMaterial: {fileID: -3519324921555297235, guid: f6391423df6bc5749819e330293f4f76,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -10246,7 +10246,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: dbe7af9aff8ddf248b58de3d5277d8bc,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.65
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: dbe7af9aff8ddf248b58de3d5277d8bc,
         type: 3}
@@ -10350,9 +10350,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b82f010b91b33754cba0b9720c6e36d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myType: 3
+  myType: 2
   PosDiameter: 2.7
-  angle: 160
+  angle: 140
   xPlace: -0.5
   rotateSpeed: 20
 --- !u!1 &2115329001

@@ -37,7 +37,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public GameObject partsSelection;
         public Camera MainCamera;
 
-        int turnIndex = 0;
+        partType turnIndex = partType.PT_Pillow1;
 
         public float total_time = 360.0f;
 
@@ -48,10 +48,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
-            rankArray[0] = 599.0f;
-            rankArray[1] = 599.0f;
-            rankArray[2] = 599.0f;
-            rankArray[3] = 599.0f;
+            rankArray[0] = 0;
+            rankArray[1] = 0;
+            rankArray[2] = 0;
+            rankArray[3] = 0;
 
             rzPanelScript.windowClosedEvent += onPanelClosed;
             resetToReady(GameState.GS_None);
@@ -77,7 +77,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
                 EndMessageBox.clearAllTimeUpHandler();
                 EndMessageBox.onTimeUp += whenFailedFinished;
-                EndMessage.text = "Time's Up!";
+                EndMessage.text = "時間到! 任務失敗!";
                 EndMessageBox.ShowTime(3.0f);
             }
         }
@@ -96,7 +96,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             int nFound = 999;
             for (int i = 0; i < 4; i++)
             {
-                if (rankArray[i] > time)
+                if (rankArray[i] < time)
                 {
                     nFound = i;
                     break;
@@ -132,7 +132,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         void resetToReady(GameState toState)
         {
             mGameState = toState;
-            turnIndex = 0;
+            turnIndex = partType.PT_Pillow1;
             //hide
             //targetIcon.SetActive(false);
             targetUI.SetActive(false);
@@ -191,19 +191,20 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             if (finalType != partType.PT_None) return finalType;
 
-            GameObject father = gameObject.transform.parent.gameObject;
+            GameObject father = gameo.transform.parent.gameObject;
             if(father!=null)
             {
                 finalType = checkType(father);
-            }
-            if (finalType != partType.PT_None) return finalType;
 
-            GameObject grandFather = father.transform.parent.gameObject;
-            if (grandFather != null)
-            {
-                finalType = checkType(grandFather);
+                if (finalType != partType.PT_None) return finalType;
+
+                GameObject grandFather = father.transform.parent.gameObject;
+                if (grandFather != null)
+                {
+                    finalType = checkType(grandFather);
+                    if (finalType != partType.PT_None) return finalType;
+                }
             }
-            if (finalType != partType.PT_None) return finalType;
 
             return partType.PT_None;
         }
@@ -233,9 +234,27 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         partType pt = checkFamilyPartType(hitObject);
                         if (pt != partType.PT_None)
                         {
+                            /*
                             EndMessageBox.clearAllTimeUpHandler();
                             EndMessage.text = "Part type=" + pt.ToString();
                             EndMessageBox.ShowTime(2.0f);
+                            */
+                            if(pt==turnIndex)
+                            {
+                                CorrectActive();
+                            }
+                            else if (pt == partType.PT_Fake0)
+                            {
+                                EndMessageBox.clearAllTimeUpHandler();
+                                EndMessage.text = "零件錯誤~";
+                                EndMessageBox.ShowTime(2.0f);
+                            }
+                            else
+                            {
+                                EndMessageBox.clearAllTimeUpHandler();
+                                EndMessage.text = "順序錯了!";
+                                EndMessageBox.ShowTime(2.0f);
+                            }
                             Touched = true;
                         }
                     }
@@ -244,26 +263,26 @@ namespace UnityEngine.XR.ARFoundation.Samples
             if(!Touched)
             {
                 EndMessageBox.clearAllTimeUpHandler();
-                EndMessage.text = "No Touch";
-                EndMessageBox.ShowTime(2.0f);
+                EndMessage.text = "MISS!";
+                EndMessageBox.ShowTime(1.0f);
                 Touched = true;
             }
         }
 
-        public void inTurnActive()
+        public void CorrectActive()
         {
             if (mGameState != GameState.GS_Game ) return;
 
-            activateIndex(turnIndex);
-            turnIndex = (turnIndex + 1);
+            activateIndex((int)turnIndex);
+            turnIndex = (partType)((int)turnIndex + 1);
 
-            if (turnIndex == 8)
+            if (turnIndex == partType.PT_Fake0)
             {
                 resetToReady(GameState.GS_GameSucceed);
 
                 EndMessageBox.clearAllTimeUpHandler();
                 EndMessageBox.onTimeUp += whenSucceedFinished;
-                EndMessage.text = "Good Job! Time " + timeText.text;
+                EndMessage.text = "任務成功! 時間 " + timeText.text;
                 EndMessageBox.ShowTime(3.0f);
                 checkToWriteRank(timer);
 
