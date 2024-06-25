@@ -96,7 +96,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
             int nFound = 999;
             for (int i = 0; i < 4; i++)
             {
-                if (rankArray[i] < time)
+                if (rankArray[i] <
+                    time)
                 {
                     nFound = i;
                     break;
