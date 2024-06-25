@@ -34,8 +34,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             //ScreenCapture.CaptureScreenshot(Application.persistentDataPath + filename);
 
-            //NativeGallery.SaveImageToGallery(imageBytes, "AlbumName", filename, null);
-
+            NativeGallery.SaveImageToGallery(imageBytes, "AlbumName", filename, null);
         }
 
         // Update is called once per frame

@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System;
+using System.Collections;
 
 namespace UnityEngine.XR.ARFoundation.Samples
 {
@@ -9,7 +10,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
         GS_None,
         GS_Game,
         GS_GameSucceed,
-        GS_GameFailed
+        GS_GameFailed,
+        GS_TakingPicture
     }
 
     public class rzMain : MonoBehaviour
@@ -21,11 +23,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public TMPro.TMP_Text[] rankTextArray;
 
         //public GameObject theModel;
-        public TMPro.TMP_Text timeText;
         public MessageTimer correctBox;
         public MessageTimer EndMessageBox;
-        public TMPro.TMP_Text EndMessage;
-        public GameObject targetIcon;
+        public GameObject takePicButton;
         public GameObject targetUI;
         public GameObject targetHint;
         public GameObject resetButton;
@@ -35,7 +35,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public GameObject menuPanel;
         public GameObject rankPanel;
         public GameObject partsSelection;
+        public GameObject countMask;
+        public TMPro.TMP_Text timeText;
+        public TMPro.TMP_Text EndMessage;
+        public TMPro.TMP_Text countText;
         public Camera MainCamera;
+        public GameObject UpRegion;
 
         partType turnIndex = partType.PT_Pillow1;
 
@@ -54,8 +59,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
             rankArray[3] = 0;
 
             rzPanelScript.windowClosedEvent += onPanelClosed;
+            countMask.SetActive(false);
             resetToReady(GameState.GS_None);
             resetModels();
+            takePicButton.SetActive(false);
 
             Debug.Log("Main Started");
         }
@@ -135,7 +142,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
             mGameState = toState;
             turnIndex = partType.PT_Pillow1;
             //hide
-            //targetIcon.SetActive(false);
             targetUI.SetActive(false);
             targetHint.SetActive(false);
             clockSet.SetActive(false);
@@ -295,6 +301,59 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
         }
 
+        IEnumerator TakeAndSaveScreenshot()
+        {
+            yield return new WaitForEndOfFrame();
+
+            Texture2D screenImage = new Texture2D(Screen.width, Screen.height);
+            //Get Image from screen
+            screenImage.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+            screenImage.Apply();
+            //Convert to png
+            byte[] imageBytes = screenImage.EncodeToPNG();
+
+            //Save image to gallery
+            String filename = "IMG" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".png";
+
+            //ScreenCapture.CaptureScreenshot(Application.persistentDataPath + filename);
+
+            NativeGallery.SaveImageToGallery(imageBytes, "EngineerAR", filename, null);
+
+            UpRegion.SetActive(true);
+            takePicButton.SetActive(true);
+
+        }
+
+        int nCountDown = 5;
+        IEnumerator OneSecondTick()
+        {
+            countText.text = nCountDown.ToString();
+            yield return new WaitForSeconds(1.0f);
+
+            nCountDown -= 1;
+            if(nCountDown==0)
+            {
+                countMask.SetActive(false);
+                StartCoroutine(TakeAndSaveScreenshot());
+            }
+            else
+            {
+                StartCoroutine(OneSecondTick());
+            }
+        }
+
+        public void takePicture()
+        {
+            nCountDown = 5;
+            mGameState = GameState.GS_TakingPicture;
+            countMask.SetActive(true);
+
+            UpRegion.SetActive(false);
+            takePicButton.SetActive(false);
+
+            StartCoroutine(OneSecondTick());
+        }
+
         public void onRankClosed()
         {
             rankButton.SetActive(true);
@@ -302,16 +361,16 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         public void resetSwitch()
         {
-            if(mGameState == GameState.GS_None)
+            if(mGameState == GameState.GS_Game)
             {
                 resetToReady(GameState.GS_None);
                 resetModels();
-                startPressed();
             }
             else
             {
                 resetToReady(GameState.GS_None);
                 resetModels();
+                startPressed();
             }
         }
 
@@ -335,6 +394,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             menuScript.closeAllPages();
 
             rankButton.SetActive(false);
+            takePicButton.SetActive(false);
         }
 
         public void startPressed()
@@ -347,7 +407,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
             timer = total_time;
             mGameState = GameState.GS_Game;
 
-            //targetIcon.SetActive(true);
             targetUI.SetActive(true);
             targetHint.SetActive(true);
             resetButton.SetActive(true);
@@ -359,6 +418,8 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public void whenSucceedFinished()
         {
             mGameState = GameState.GS_None;
+
+            takePicButton.SetActive(true);
 
             Debug.Log("whenSucceedFinished done");
         }
